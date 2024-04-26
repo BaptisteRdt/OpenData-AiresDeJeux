@@ -5,75 +5,6 @@ import requests
 import glob
 from tkinter.simpledialog import askinteger, askfloat
 
-# Définir des variables globales pour stocker les valeurs d'entrée de l'utilisateur
-age_min = None
-age_max = None
-surface_max = None
-
-app_tk = tkinter.Tk()
-app_tk.geometry(f"{1000}x{600}")
-
-map_widget = tkintermapview.TkinterMapView(app_tk, width=2000, height=2000, corner_radius=5)
-map_widget.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
-
-button_frame = tkinter.Frame(app_tk)
-button_frame.place(relx=0.5, rely=0.1, anchor=tkinter.CENTER)
-
-
-def set_age_min():
-    global age_min
-    age_min = askinteger("Age minimum", "Entrez l'âge minimum:")
-    if age_min is not None:
-        print(f"Age minimum choisi: {age_min}")
-
-
-def set_age_max():
-    global age_max
-    age_max = askinteger("Age maximum", "Entrez l'âge maximum:")
-    if age_max is not None:
-        print(f"Age maximum choisi: {age_max}")
-
-
-def set_surface_max():
-    global surface_max
-    surface_max = askfloat("Surface maximum", "Entrez la surface maximum (en m²):")
-    if surface_max is not None:
-        print(f"Surface maximum choisie: {surface_max}")
-
-
-def update_data():
-    global age_min, age_max, surface_max
-
-    # Filtrer les données en fonction des critères spécifiés
-    filtered_data = [aire for aire in data.aires if (age_min is None or aire.age_min >= age_min)
-                     and (age_max is None or aire.age_max <= age_max)
-                     and (surface_max is None or aire.surface <= surface_max)]
-
-    # Effacer tous les polygones de la carte
-    map_widget.delete_all_polygon()
-
-    # Afficher les aires de jeux filtrées sur la carte
-    for aire in filtered_data:
-        for polygone_id in aire.polygone_coords:
-            map_widget.set_polygon(aire.polygone_coords[polygone_id], command=polygon_click, name=aire.nom,
-                                   outline_color="purple", data=aire)
-
-
-button_ageMin = tkinter.Button(button_frame, text="Bouton Age Min", width=15, height=2, command=set_age_min)
-button_ageMin.pack(side=tkinter.LEFT, padx=10)
-
-button_ageMax = tkinter.Button(button_frame, text="Bouton Age Max", width=15, height=2, command=set_age_max)
-button_ageMax.pack(side=tkinter.LEFT, padx=10)
-
-button_Surface = tkinter.Button(button_frame, text="Bouton Surface", width=15, height=2, command=set_surface_max)
-button_Surface.pack(side=tkinter.LEFT, padx=10)
-
-button_Actualisation = tkinter.Button(button_frame, text="Bouton Actualisation", width=15, height=2,
-                                      command=update_data)
-button_Actualisation.pack(side=tkinter.LEFT, padx=10)
-
-button_frame.lift()
-
 
 def load_api() -> dict:
     url = ("https://opendata.bordeaux-metropole.fr/api/explore/v2.1/catalog/datasets/bor_airejeux/records?select="
@@ -171,6 +102,79 @@ class AiresDeJeux:
 
     def __str__(self):
         return f"Nombre d'airs de jeux: {self.nombre_aires}, {[f"\n{print(aire)}" for aire in self.aires]}"
+
+
+# Définir des variables globales pour stocker les valeurs d'entrée de l'utilisateur
+age_min = None
+age_max = None
+surface_max = None
+
+app_tk = tkinter.Tk()
+app_tk.geometry(f"{1000}x{600}")
+
+map_widget = tkintermapview.TkinterMapView(app_tk, width=2000, height=2000, corner_radius=5)
+map_widget.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
+
+button_frame = tkinter.Frame(app_tk)
+button_frame.place(relx=0.5, rely=0.1, anchor=tkinter.CENTER)
+
+
+def set_age_min():
+    global age_min
+    age_min = askinteger("Age minimum", "Entrez l'âge minimum:")
+    if age_min is not None:
+        print(f"Age minimum choisi: {age_min}")
+
+
+button_ageMin = tkinter.Button(button_frame, text="Bouton Age Min", width=15, height=2, command=set_age_min)
+button_ageMin.pack(side=tkinter.LEFT, padx=10)
+
+
+def set_age_max():
+    global age_max
+    age_max = askinteger("Age maximum", "Entrez l'âge maximum:")
+    if age_max is not None:
+        print(f"Age maximum choisi: {age_max}")
+
+
+button_ageMax = tkinter.Button(button_frame, text="Bouton Age Max", width=15, height=2, command=set_age_max)
+button_ageMax.pack(side=tkinter.LEFT, padx=10)
+
+
+def set_surface_max():
+    global surface_max
+    surface_max = askfloat("Surface maximum", "Entrez la surface maximum (en m²):")
+    if surface_max is not None:
+        print(f"Surface maximum choisie: {surface_max}")
+
+
+button_Surface = tkinter.Button(button_frame, text="Bouton Surface", width=15, height=2, command=set_surface_max)
+button_Surface.pack(side=tkinter.LEFT, padx=10)
+
+
+def update_data():
+    global age_min, age_max, surface_max
+
+    # Filtrer les données en fonction des critères spécifiés
+    filtered_data = [aire for aire in data.aires if (age_min is None or aire.age_min >= age_min)
+                     and (age_max is None or aire.age_max <= age_max)
+                     and (surface_max is None or aire.surface <= surface_max)]
+
+    # Effacer tous les polygones de la carte
+    map_widget.delete_all_polygon()
+
+    # Afficher les aires de jeux filtrées sur la carte
+    for aire in filtered_data:
+        for polygone_id in aire.polygone_coords:
+            map_widget.set_polygon(aire.polygone_coords[polygone_id], command=polygon_click, name=aire.nom,
+                                   outline_color="purple", data=aire)
+
+
+button_Actualisation = tkinter.Button(button_frame, text="Bouton Actualisation", width=15, height=2,
+                                      command=update_data)
+button_Actualisation.pack(side=tkinter.LEFT, padx=10)
+
+button_frame.lift()
 
 
 if __name__ == "__main__":
