@@ -8,6 +8,7 @@ import sqlite3
 
 
 def load_api() -> dict:
+    # Chargement des données nécessaires de l'API de Bordeaux Métropole
     url = ("https://opendata.bordeaux-metropole.fr/api/explore/v2.1/catalog/datasets/bor_airejeux/records?select="
            "age_min%2C%20age_max%2C%20geo_shape%2C%20nom_site%2C%20nb_jeux%2C%20surface%2C%20geo_point_2d%2C%20gid&"
            "limit=-1")
@@ -16,6 +17,7 @@ def load_api() -> dict:
 
 
 def define_polygone_coords(air):
+    # On vient définir nos polygones par air en fonction de leur type
     if air['geo_shape']['geometry']['type'] == 'Polygon':
         return {idx: [(point[1], point[0]) for point in polygone] for idx, polygone in
                 enumerate(air['geo_shape']['geometry']['coordinates'])}
@@ -25,14 +27,18 @@ def define_polygone_coords(air):
 
 
 def polygon_click(polygone):
+    # Évènement lorsque l'on clique sur un polygone
     latitude, longitude = polygone.data.point_coords
+    # Zoom légèrement au-dessus de l'air
     map_widget.set_position(latitude + 0.0005, longitude)
     map_widget.set_zoom(18)
+    # Fait apparaitre la photo (si existante) de l'aire de jeux
     polygone.data.change_marker()
     print(f"Vous avez cliqué sur l'air de jeux : {polygone.name}")
 
 
 def image_click(marker):
+    # Évènement lorsque l'on clique sur un marker (fait disparaitre la photo quand on clique dessus)
     marker.data.change_marker()
 
 
@@ -54,6 +60,7 @@ class AireDeJeux:
         self.marker = None
 
     def show_marker(self):
+        # Fait apparaitre la photo (si existante) de l'aire légèrement au-dessus du polygone
         self.marker = map_widget.set_marker(self.point_coords[0] + 0.001,
                                             self.point_coords[1],
                                             data=self,
@@ -63,10 +70,12 @@ class AireDeJeux:
         self.hidden_marker = False
 
     def hide_marker(self):
+        # Supprime la photo de la map
         self.marker.delete()
         self.hidden_marker = True
 
     def change_marker(self):
+        # Si photo affiche, on la supprime, si caché, on l'affiche
         if self.hidden_marker:
             self.show_marker()
         else:
@@ -95,6 +104,7 @@ class AiresDeJeux:
         self.nombre_aires = len(aires_de_jeux)
 
     def draw_polygones(self):
+        # Dessine les polygones des aires de jeux sur la map
         for aire in self.aires:
             for polygone_id in aire.polygone_coords:
                 map_widget.set_polygon(aire.polygone_coords[polygone_id], command=polygon_click, name=aire.nom,
@@ -102,6 +112,7 @@ class AiresDeJeux:
         return map_widget
 
     def to_sqlite(self):
+        # Transporte les données de l'API Bordeaux Métropole vers une BDD sqlite3 nommée aires_de_jeux.sq3
         conn = sqlite3.connect('aires_de_jeux.sq3')
         cur = conn.cursor()
         for aire in self.aires:
