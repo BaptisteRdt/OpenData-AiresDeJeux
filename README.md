@@ -1,7 +1,8 @@
 # OpenData-AiresDeJeux
 Projet universitaire visant à créer une application utilisant des données publiques et libres d'accès
 
-## Installation de l’application “AttractKids33“ : 
+Free-licence
+## Installation 
 
 ```bash 
 git clone https://github.com/BaptisteRdt/OpenData-AiresDeJeux.git
@@ -32,9 +33,34 @@ Une fois dans l’environnement virtuel installons les librairies nécessaires p
 ```bash
 pip install -r requirements.txt
 ```
+## Utilisation de l’application “AttractKids33“
 
-Enfin, lorsque toutes les étapes précédentes ont été effectuées, il suffit de lancer l’application comme tel : 
+Une fois l'installation terminée, lorsque toutes les étapes précédentes ont été effectuées, il suffit de lancer l’application comme tel : 
 
 ```bash
 python .\src\main.py
 ```
+
+## Utilisation de l'API 
+
+Pour lancer l'API, taper la commande suivante dans le terminal : 
+
+```bash
+python .\src\fast_api.py
+```
+
+Une fois l'application lancée, vous pouvez vous rendre dans votre navigateur préféré 
+sur cette URL "localhost:8000/" et taper dans l'URL les instructions suivante : 
+
+- /get_authorization :
+
+Vous envoie une clef API qui vous permettra d'accéder aux données de l'API 
+- /get_schema :
+
+Vous envoie le schéma de la base de données avec le nom des colonnes correspondantes
+- /get_aire?key=<span style="color: #26B260">[votre clef API]</span><span style="color: #FF6666">&champs=[vos champs]&condition=[vos conditions]</span> :
+
+Vous envoie les données de l'API, le paramètre key est obligatoire, les paramètres de l'instruction optionnels sont en rouge,
+champs vous permet de n'obtenir que ces champs-ci dans la requête, et condition renvoi les 
+données respectant les conditions inscrites dans le paramètre
+

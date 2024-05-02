@@ -61,6 +61,17 @@ class MoteurDB:
         return column_names
 
     def get_aires(self, key: str, champs: str, condition: str):
+        """
+        Obtenir les données de l'API grace à votre clef (paramètre key).
+
+        Args :
+            - key : str = Clef API qui vous permet d'accéder aux données
+            - champs : str = Champs que vous souhaitez obtenir avec cette requête (par défaut, *)
+            - condition : str = Condition des données que vous souhaitez obtenir avec cette requête (par défaut, None)
+
+        Returns :
+            - dict : dictionnaire json des données de l'API respectant les paramètres entré
+        """
         if not self.authorize(key):
             return 'You are not authorized to access this at the moment, please enter your API key'
 
