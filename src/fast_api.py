@@ -12,7 +12,8 @@ except FileNotFoundError as e:
 
 # Définition des données :
 aires_de_jeux = AiresDeJeux()
-aires_de_jeux.to_sqlite()
+if aires_de_jeux.nombre_aires > moteur.nombre_aires:
+    aires_de_jeux.to_sqlite()
 
 # Définir l'application FastAPI
 app = FastAPI()

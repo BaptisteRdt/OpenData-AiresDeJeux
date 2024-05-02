@@ -17,7 +17,7 @@ def configuration_app(app):
         return moteur.get_schema(key)
 
     @app.get('/get_aire')
-    def get_items(key: str, champs: str = '*', condition: str = None):
+    def get_aires(key: str, champs: str = '*', condition: str = None):
         return moteur.get_aires(key, champs, condition)
 
     return app

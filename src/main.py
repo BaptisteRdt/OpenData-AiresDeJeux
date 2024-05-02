@@ -52,7 +52,6 @@ class AireDeJeux:
             else "no_photo.jpg"
         self.hidden_marker = True
         self.marker = None
-        print(f"{self.nom} : {self.image_filename}")
 
     def show_marker(self):
         self.marker = map_widget.set_marker(self.point_coords[0] + 0.001,
@@ -106,11 +105,12 @@ class AiresDeJeux:
         conn = sqlite3.connect('aires_de_jeux.sq3')
         cur = conn.cursor()
         for aire in self.aires:
-            sql = f'INSERT INTO aire VALUES ({aire.id}, {aire.age_min}, {aire.age_max}, {aire.type_polygone}, {aire.nom}, {aire.surface}, {aire.nombre_de_jeux})'
+            sql = f'INSERT INTO aire VALUES ({aire.id}, {aire.age_min}, {aire.age_max}, "{aire.type_polygone}", "{aire.nom}", {aire.surface}, {aire.nombre_de_jeux})'
             cur.execute(sql)
-            for coords in aire.polygone_coords.values():
-                sql_geo = f"INSERT INTO aire_geo VALUES ({aire.id}, {coords[0]}, {coords[1]})"
-                cur.execute(sql_geo)
+            for polygon in aire.polygone_coords.values():
+                for coords in polygon:
+                    sql_geo = f"INSERT INTO aire_geo VALUES ({aire.id}, {coords[0]}, {coords[1]})"
+                    cur.execute(sql_geo)
         conn.commit()
         conn.close()
 
