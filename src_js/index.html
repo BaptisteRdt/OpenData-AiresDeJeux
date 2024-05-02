@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Carte des Aires de Jeux</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            height: 600px;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filter {
+            margin-bottom: 20px;
+        }
+
+        .filter label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .filter input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        .filter button {
+            padding: 8px 15px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .filter button:hover {
+            background-color: #45a049;
+        }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Carte des Aires de Jeux</h1>
+<div id="map"></div>
+<div class="filter">
+<label for="age_min">Âge minimum:</label>
+<input type="number" id="age_min" value="1">
+<label for="age_max">Âge maximum:</label>
+<input type="number" id="age_max" value="12">
+<label for="surface_max">Surface maximum (m²):</label>
+<input type="number" id="surface_max" value="1000">
+<button onclick="applyFilters()">Appliquer</button>
+<button onclick="resetFilters()">Réinitialiser</button>
+</div>
+</div>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+        var map = L.map('map').setView([44.84045, -0.63095], 11); // Bordeaux Métropole
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var markers = []; // Tableau pour stocker les marqueurs des parcs
+
+        // Charger les données depuis le fichier JSON et les afficher sur la carte
+        axios.get("airejeux.json")
+            .then(response => {
+                var data = response.data;
+                data.forEach(function(aire) {
+                    var nom = aire.nom_site;
+                    var ageMin = aire.age_min;
+                    var ageMax = aire.age_max;
+                    var surface = aire.surface;
+                    var geoShape = aire.geo_shape.geometry; // Récupérer les données GeoJSON directement
+                    // Créer un polygone avec le nom en tant que popup
+                    var marker = L.geoJSON(geoShape, {
+                        onEachFeature: function(feature, layer) {
+                            layer.bindPopup(`<b>${nom}</b><br>Âge minimum: ${ageMin}<br>Âge maximum: ${ageMax}<br>Surface: ${surface}m²`);
+                            layer.on('click', function() {
+                                // Vous pouvez ajouter ici du code pour gérer l'interaction avec les aires de jeux
+                                console.log('Vous avez cliqué sur l\'aire de jeux : ' + nom);
+                            });
+                        },
+                        style: {
+                            color: 'blue', // Couleur des lignes
+                            fillColor: 'pink', // Couleur de remplissage
+                            fillOpacity: 0.4 // Opacité de remplissage
+                        }
+                    }).addTo(map);
+                    markers.push(marker); // Ajouter le marqueur au tableau des marqueurs
+                });
+            })
+            .catch(error => console.error('Erreur lors du chargement des données JSON:', error));
+
+        function applyFilters() {
+            var ageMin = parseFloat(document.getElementById('age_min').value);
+            var ageMax = parseFloat(document.getElementById('age_max').value);
+            var surfaceMax = parseFloat(document.getElementById('surface_max').value);
+
+            markers.forEach(function(marker) {
+                map.removeLayer(marker); // Retirer tous les marqueurs de la carte
+            });
+
+            axios.get("airejeux.json")
+                .then(response => {
+                    var data = response.data;
+                    data.forEach(function(aire) {
+                        var nom = aire.nom_site;
+                        var ageMinAire = aire.age_min;
+                        var ageMaxAire = aire.age_max;
+                        var surfaceAire = aire.surface;
+
+                        if (ageMinAire >= ageMin && ageMaxAire <= ageMax && surfaceAire <= surfaceMax) {
+                            var geoShape = aire.geo_shape.geometry; // Récupérer les données GeoJSON directement
+                            // Créer un polygone avec le nom en tant que popup
+                            var marker = L.geoJSON(geoShape, {
+                                onEachFeature: function(feature, layer) {
+                                    layer.bindPopup(`<b>${nom}</b><br>Âge minimum: ${ageMinAire}<br>Âge maximum: ${ageMaxAire}<br>Surface: ${surfaceAire}m²`);
+                                    layer.on('click', function() {
+                                        // Vous pouvez ajouter ici du code pour gérer l'interaction avec les aires de jeux
+                                        console.log('Vous avez cliqué sur l\'aire de jeux : ' + nom);
+                                    });
+                                },
+                                style: {
+                                    color: 'blue', // Couleur des lignes
+                                    fillColor: 'pink', // Couleur de remplissage
+                                    fillOpacity: 0.4 // Opacité de remplissage
+                                }
+                            }).addTo(map);
+                            markers.push(marker); // Ajouter le marqueur au tableau des marqueurs
+                        }
+                    });
+                })
+                .catch(error => console.error('Erreur lors du chargement des données JSON:', error));
+        }
+
+        function resetFilters() {
+            document.getElementById('age_min').value = 1;
+            document.getElementById('age_max').value = 12;
+            document.getElementById('surface_max').value = 1000;
+            applyFilters();
+        }
+</script>
+</body>
+</html>

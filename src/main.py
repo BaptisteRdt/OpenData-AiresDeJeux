@@ -1,9 +1,10 @@
 import tkinter
 import tkintermapview
-from PIL import Image, ImageTk
-import requests
-import glob
 from tkinter.simpledialog import askinteger, askfloat
+import requests
+from PIL import Image, ImageTk
+import glob
+import sqlite3
 
 
 def load_api() -> dict:
@@ -100,6 +101,18 @@ class AiresDeJeux:
                 map_widget.set_polygon(aire.polygone_coords[polygone_id], command=polygon_click, name=aire.nom,
                                        outline_color="purple", data=aire)
         return map_widget
+
+    def to_sqlite(self):
+        conn = sqlite3.connect('aires_de_jeux.sq3')
+        cur = conn.cursor()
+        for aire in self.aires:
+            sql = f'INSERT INTO aire VALUES ({aire.id}, {aire.age_min}, {aire.age_max}, {aire.type_polygone}, {aire.nom}, {aire.surface}, {aire.nombre_de_jeux})'
+            cur.execute(sql)
+            for coords in aire.polygone_coords.values():
+                sql_geo = f"INSERT INTO aire_geo VALUES ({aire.id}, {coords[0]}, {coords[1]})"
+                cur.execute(sql_geo)
+        conn.commit()
+        conn.close()
 
     def __str__(self):
         return f"Nombre d'airs de jeux: {self.nombre_aires}, {[f"\n{print(aire)}" for aire in self.aires]}"
