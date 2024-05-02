@@ -36,11 +36,11 @@ def image_click(marker):
 
 
 class AireDeJeux:
-    def __init__(self, gid: int, age_min: int, age_max: int, polygone_coords: dict, polygone_type: str,
+    def __init__(self, gid: int, age_minimum: int, age_maximum: int, polygone_coords: dict, polygone_type: str,
                  nom: str, surface: float, nombre_de_jeux: int, point_coords: list):
         self.id = gid
-        self.age_min = age_min
-        self.age_max = age_max
+        self.age_min = age_minimum
+        self.age_max = age_maximum
         self.polygone_coords = polygone_coords
         self.type_polygone = polygone_type
         self.nom = nom
@@ -51,6 +51,7 @@ class AireDeJeux:
             else "no_photo.jpg"
         self.hidden_marker = True
         self.marker = None
+        print(f"{self.nom} : {self.image_filename}")
 
     def show_marker(self):
         self.marker = map_widget.set_marker(self.point_coords[0] + 0.001,
@@ -80,20 +81,20 @@ class AireDeJeux:
 
 class AiresDeJeux:
     def __init__(self):
-        data = load_api()
+        aires_de_jeux = load_api()
         self.aires = [AireDeJeux(gid=aire['gid'],
-                                 age_min=aire['age_min'],
-                                 age_max=aire['age_max'],
+                                 age_minimum=aire['age_min'],
+                                 age_maximum=aire['age_max'],
                                  polygone_coords=define_polygone_coords(aire),
                                  polygone_type=aire['geo_shape']['geometry']['type'],
                                  nom=aire['nom_site'],
                                  surface=aire['surface'],
                                  nombre_de_jeux=aire['nb_jeux'] if aire['nb_jeux'] is not None else 0,
                                  point_coords=[float(aire['geo_point_2d']['lat']), float(aire['geo_point_2d']['lon'])])
-                      for aire in data]
-        self.nombre_aires = len(data)
+                      for aire in aires_de_jeux]
+        self.nombre_aires = len(aires_de_jeux)
 
-    def draw_polygones(self, map_widget):
+    def draw_polygones(self):
         for aire in self.aires:
             for polygone_id in aire.polygone_coords:
                 map_widget.set_polygon(aire.polygone_coords[polygone_id], command=polygon_click, name=aire.nom,
@@ -105,9 +106,9 @@ class AiresDeJeux:
 
 
 # Définir des variables globales pour stocker les valeurs d'entrée de l'utilisateur
-age_min = None
-age_max = None
-surface_max = None
+age_min = 0
+age_max = 99
+surface_max = 10000
 
 app_tk = tkinter.Tk()
 app_tk.geometry(f"{1000}x{600}")
@@ -116,7 +117,7 @@ map_widget = tkintermapview.TkinterMapView(app_tk, width=2000, height=2000, corn
 map_widget.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
 button_frame = tkinter.Frame(app_tk)
-button_frame.place(relx=0.5, rely=0.1, anchor=tkinter.CENTER)
+button_frame.place(relx=0.5, rely=0.03, anchor=tkinter.CENTER)
 
 
 def set_age_min():
@@ -127,7 +128,7 @@ def set_age_min():
 
 
 button_ageMin = tkinter.Button(button_frame, text="Bouton Age Min", width=15, height=2, command=set_age_min)
-button_ageMin.pack(side=tkinter.LEFT, padx=10)
+button_ageMin.pack(side=tkinter.LEFT, padx=5)
 
 
 def set_age_max():
@@ -138,7 +139,7 @@ def set_age_max():
 
 
 button_ageMax = tkinter.Button(button_frame, text="Bouton Age Max", width=15, height=2, command=set_age_max)
-button_ageMax.pack(side=tkinter.LEFT, padx=10)
+button_ageMax.pack(side=tkinter.LEFT, padx=5)
 
 
 def set_surface_max():
@@ -149,7 +150,7 @@ def set_surface_max():
 
 
 button_Surface = tkinter.Button(button_frame, text="Bouton Surface", width=15, height=2, command=set_surface_max)
-button_Surface.pack(side=tkinter.LEFT, padx=10)
+button_Surface.pack(side=tkinter.LEFT, padx=5)
 
 
 def update_data():
@@ -172,14 +173,14 @@ def update_data():
 
 button_Actualisation = tkinter.Button(button_frame, text="Bouton Actualisation", width=15, height=2,
                                       command=update_data)
-button_Actualisation.pack(side=tkinter.LEFT, padx=10)
+button_Actualisation.pack(side=tkinter.LEFT, padx=5)
 
 button_frame.lift()
 
 
 if __name__ == "__main__":
     data = AiresDeJeux()
-    map_widget = data.draw_polygones(map_widget)
+    map_widget = data.draw_polygones()
 
     map_widget.set_position(44.86596236872216, -0.5757273765736807)
     map_widget.set_zoom(18)
