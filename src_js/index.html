@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="X-UA-Compatible" content="ie=edge">
-<title>Carte des Aires de Jeux</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Carte des Aires de Jeux</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -14,13 +14,14 @@
         }
 
         #map {
-            height: 600px;
+            height: 700px;
             margin-bottom: 20px;
+            position: relative;
         }
 
         .container {
             max-width: 800px;
-            margin: 0 auto;
+            margin: 20px auto;
             padding: 20px;
             background-color: #f9f9f9;
             border-radius: 10px;
@@ -34,6 +35,9 @@
 
         .filter {
             margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .filter label {
@@ -41,54 +45,131 @@
             font-weight: bold;
         }
 
-        .filter input[type="number"] {
-            width: 60px;
+        .filter input[type="number"], .filter input[type="text"] {
+            width: 100px;
             padding: 5px;
             border-radius: 5px;
             border: 1px solid #ccc;
             margin-right: 10px;
         }
 
+        .filter input[type="text"] {
+            flex: 1;
+        }
+
         .filter button {
-            padding: 8px 15px;
+            padding: 10px 20px;
             border: none;
             background-color: #4CAF50;
             color: white;
             border-radius: 5px;
             cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .filter button:last-child {
+            margin-right: 0;
         }
 
         .filter button:hover {
             background-color: #45a049;
         }
-</style>
+
+        #nearest-parks {
+            margin-top: 20px;
+            display: none;
+        }
+
+        #nearest-parks h2 {
+            margin-bottom: 10px;
+        }
+
+        #full-screen-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 10px;
+            margin-bottom: 10px;
+        }
+
+        #full-screen-btn:hover {
+            background-color: #45a049;
+        }
+
+        .search-park-btn {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .search-park-btn:hover {
+            background-color: #45a049;
+        }
+
+        .leaflet-popup-content {
+            width: 250px;
+        }
+    </style>
 </head>
 <body>
-<div class="container">
-<h1>Carte des Aires de Jeux</h1>
-<div id="map"></div>
-<div class="filter">
-<label for="age_min">Âge minimum:</label>
-<input type="number" id="age_min" value="1">
-<label for="age_max">Âge maximum:</label>
-<input type="number" id="age_max" value="12">
-<label for="surface_max">Surface maximum (m²):</label>
-<input type="number" id="surface_max" value="1000">
-<button onclick="applyFilters()">Appliquer</button>
-<button onclick="resetFilters()">Réinitialiser</button>
-</div>
-</div>
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-        var map = L.map('map').setView([44.84045, -0.63095], 11); // Bordeaux Métropole
+    <div class="container">
+        <h1>Carte des Aires de Jeux</h1>
+        <div id="map">
+            <button id="full-screen-btn" onclick="toggleFullScreen()">Plein écran</button>
+        </div>
+
+        <div class="filter">
+            <label for="age_min">Âge minimum:</label>
+            <input type="number" id="age_min" value="1">
+            <label for="age_max">Âge maximum:</label>
+            <input type="number" id="age_max" value="12">
+            <label for="surface_max">Surface maximum (m²):</label>
+            <input type="number" id="surface_max" value="1000">
+        </div>
+
+        <div class="filter">
+            <label for="search-title">Rechercher un parc :</label>
+            <input type="text" id="search" placeholder="Rechercher par nom">
+            <button class="search-park-btn" onclick="applyFilters()">Rechercher</button>
+        </div>
+
+        <div class="filter">
+            <button onclick="resetFilters()">Réinitialiser</button>
+            <button id="full-screen-btn" onclick="toggleFullScreen()">Plein écran</button>
+        </div>
+
+        <div class="filter">
+            <label for="latitude">Latitude:</label>
+            <input type="text" id="latitude" placeholder="Latitude">
+            <label for="longitude">Longitude:</label>
+            <input type="text" id="longitude" placeholder="Longitude">
+            <button onclick="updatePosition()">Mettre à jour la position</button>
+        </div>
+
+        <div id="nearest-parks">
+            <h2>Résultats de la recherche :</h2>
+            <ul id="nearest-parks-list"></ul>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        var map = L.map('map').setView([44.84045, -0.63095], 11);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        var markers = []; // Tableau pour stocker les marqueurs des parcs
+        var markers = [];
+        var userCircle = null;
 
-        // Charger les données depuis le fichier JSON et les afficher sur la carte
         axios.get("airejeux.json")
             .then(response => {
                 var data = response.data;
@@ -97,23 +178,23 @@
                     var ageMin = aire.age_min;
                     var ageMax = aire.age_max;
                     var surface = aire.surface;
-                    var geoShape = aire.geo_shape.geometry; // Récupérer les données GeoJSON directement
-                    // Créer un polygone avec le nom en tant que popup
+                    var imageSrc = `images/${nom}.jpg`;
+                    var geoShape = aire.geo_shape.geometry;
                     var marker = L.geoJSON(geoShape, {
                         onEachFeature: function(feature, layer) {
-                            layer.bindPopup(`<b>${nom}</b><br>Âge minimum: ${ageMin}<br>Âge maximum: ${ageMax}<br>Surface: ${surface}m²`);
+                            var popupContent = `<b>${nom}</b><br>Âge minimum: ${ageMin}<br>Âge maximum: ${ageMax}<br>Surface: ${surface}m²<br><a href="${imageSrc}" target="_blank"><img src="${imageSrc}" width="100"></a>`;
+                            layer.bindPopup(popupContent);
                             layer.on('click', function() {
-                                // Vous pouvez ajouter ici du code pour gérer l'interaction avec les aires de jeux
                                 console.log('Vous avez cliqué sur l\'aire de jeux : ' + nom);
                             });
                         },
                         style: {
-                            color: 'blue', // Couleur des lignes
-                            fillColor: 'pink', // Couleur de remplissage
-                            fillOpacity: 0.4 // Opacité de remplissage
+                            color: 'blue',
+                            fillColor: 'pink',
+                            fillOpacity: 0.4
                         }
                     }).addTo(map);
-                    markers.push(marker); // Ajouter le marqueur au tableau des marqueurs
+                    markers.push(marker);
                 });
             })
             .catch(error => console.error('Erreur lors du chargement des données JSON:', error));
@@ -122,40 +203,48 @@
             var ageMin = parseFloat(document.getElementById('age_min').value);
             var ageMax = parseFloat(document.getElementById('age_max').value);
             var surfaceMax = parseFloat(document.getElementById('surface_max').value);
+            var searchTerm = document.getElementById('search').value.toLowerCase();
 
             markers.forEach(function(marker) {
-                map.removeLayer(marker); // Retirer tous les marqueurs de la carte
+                map.removeLayer(marker);
             });
+
+            var found = false;
 
             axios.get("airejeux.json")
                 .then(response => {
                     var data = response.data;
                     data.forEach(function(aire) {
-                        var nom = aire.nom_site;
+                        var nom = aire.nom_site.toLowerCase();
                         var ageMinAire = aire.age_min;
                         var ageMaxAire = aire.age_max;
                         var surfaceAire = aire.surface;
 
-                        if (ageMinAire >= ageMin && ageMaxAire <= ageMax && surfaceAire <= surfaceMax) {
-                            var geoShape = aire.geo_shape.geometry; // Récupérer les données GeoJSON directement
-                            // Créer un polygone avec le nom en tant que popup
+                        if (ageMinAire >= ageMin && ageMaxAire <= ageMax && surfaceAire <= surfaceMax && nom.includes(searchTerm)) {
+                            found = true;
+                            var imageSrc = `images/${nom}.jpg`;
+                            var geoShape = aire.geo_shape.geometry;
                             var marker = L.geoJSON(geoShape, {
                                 onEachFeature: function(feature, layer) {
-                                    layer.bindPopup(`<b>${nom}</b><br>Âge minimum: ${ageMinAire}<br>Âge maximum: ${ageMaxAire}<br>Surface: ${surfaceAire}m²`);
+                                    var popupContent = `<b>${nom}</b><br>Âge minimum: ${ageMinAire}<br>Âge maximum: ${ageMaxAire}<br>Surface: ${surfaceAire}m²<br><a href="${imageSrc}" target="_blank"><img src="${imageSrc}" width="100"></a>`;
+                                    layer.bindPopup(popupContent);
                                     layer.on('click', function() {
-                                        // Vous pouvez ajouter ici du code pour gérer l'interaction avec les aires de jeux
                                         console.log('Vous avez cliqué sur l\'aire de jeux : ' + nom);
                                     });
                                 },
                                 style: {
-                                    color: 'blue', // Couleur des lignes
-                                    fillColor: 'pink', // Couleur de remplissage
-                                    fillOpacity: 0.4 // Opacité de remplissage
+                                    color: 'blue',
+                                    fillColor: 'pink',
+                                    fillOpacity: 0.4
                                 }
                             }).addTo(map);
-                            markers.push(marker); // Ajouter le marqueur au tableau des marqueurs
+                            markers.push(marker);
                         }
                     });
+
+                    if (!found) {
+                        alert('Aucune aire de jeu correspondante n\'a été trouvée.');
+                    }
                 })
                 .catch(error => console.error('Erreur lors du chargement des données JSON:', error));
         }
@@ -164,8 +253,45 @@
             document.getElementById('age_min').value = 1;
             document.getElementById('age_max').value = 12;
             document.getElementById('surface_max').value = 1000;
+            document.getElementById('search').value = '';
             applyFilters();
         }
-</script>
+
+        function updatePosition() {
+            var latitude = parseFloat(document.getElementById('latitude').value);
+            var longitude = parseFloat(document.getElementById('longitude').value);
+
+            if (isNaN(latitude) || isNaN(longitude)) {
+                alert('Veuillez entrer des valeurs valides pour la latitude et la longitude.');
+                return;
+            }
+
+            if (userCircle) {
+                map.removeLayer(userCircle);
+            }
+
+            userCircle = L.circle([latitude, longitude], {
+                color: 'red',
+                fillColor: '#f03',
+                fillOpacity: 0.5,
+                radius: 500
+            }).addTo(map);
+
+            map.setView([latitude, longitude], 12);
+        }
+
+        function toggleFullScreen() {
+            var elem = document.getElementById('map');
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.mozRequestFullScreen) {
+                elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+        }
+    </script>
 </body>
 </html>
