@@ -54,7 +54,7 @@ class AireDeJeux:
         self.surface = surface
         self.nombre_de_jeux = nombre_de_jeux
         self.point_coords = point_coords
-        self.image_filename = glob.glob(f"images/{nom}.*")[0][7:] if glob.glob(f"images/{nom}.*") != [] \
+        self.image_filename = glob.glob(f"images/{nom}.*")[0][7:] if glob.glob(f"images/{nom}.jpg") != [] \
             else "no_photo.jpg"
         self.hidden_marker = True
         self.marker = None

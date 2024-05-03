@@ -6,9 +6,11 @@ import hashlib
 
 def create_table(cur):
     # Créé les tables aire et aire_geo, n'est appelée que si les tables n'existent pas déjà
-    table_aire = """CREATE TABLE IF NOT EXISTS aire (id INTEGER PRIMARY KEY, age_min INTEGER, age_max INTEGER, polygone_type TEXT, nom TEXT, surface REAL, nombre_de_jeux INTEGER)"""
+    table_aire = ("CREATE TABLE IF NOT EXISTS aire (id INTEGER PRIMARY KEY, age_min INTEGER, age_max INTEGER, "
+                  "polygone_type TEXT, nom TEXT, surface REAL, nombre_de_jeux INTEGER)")
     cur.execute(table_aire)
-    table_aire_geo = """CREATE TABLE IF NOT EXISTS aire_geo (id INTEGER, lat REAL, lon REAL, FOREIGN KEY (id) REFERENCES aire (id))"""
+    table_aire_geo = ("CREATE TABLE IF NOT EXISTS aire_geo (id INTEGER, lat REAL, lon REAL," 
+                      "FOREIGN KEY (id) REFERENCES aire (id))")
     cur.execute(table_aire_geo)
 
 
@@ -30,7 +32,7 @@ class MoteurDB:
         if not existing_tables(cur):
             create_table(cur)
             self.conn.commit()
-        # On récupère les clefs hashées du fichiers JSON
+        # On récupère les clefs hashées du fichier JSON
         with open('clefs.json', 'r') as hashed_keys_file:
             self.hashed_keys = json.load(hashed_keys_file)
 
@@ -38,14 +40,14 @@ class MoteurDB:
         self.nombre_aires = cur.fetchall()[0][0]
 
     def authorize(self, key):
-        # On hash la clef envoyé pour testé si elle apparait dans le fichier clefs.json
+        # On hash la clef envoyée pour tester si elle apparait dans le fichier clefs.json
         # NB : les clefs dans ce fichier sont elles même hashées pour ne pas récupérer une
         #      clef à partir de ce fichier directement
         hash_key = hashlib.md5(key.encode()).hexdigest()
         return hash_key in self.hashed_keys
 
     def get_authorization(self):
-        # On créé une clef d'API unique que l'on ajoute hashée au fichier clefs.json
+        # On crée une clef d'API unique que l'on ajoute hashée au fichier clefs.json
         api_key = str(uuid4())
         hashed_api_keys = hashlib.md5(api_key.encode()).hexdigest()
         self.hashed_keys.append(hashed_api_keys)
