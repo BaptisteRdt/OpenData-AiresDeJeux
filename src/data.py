@@ -25,7 +25,7 @@ def existing_tables(cur):
 
 class MoteurDB:
     def __init__(self):
-        self.conn = sqlite3.connect('aires_de_jeux.sq3', check_same_thread=False)
+        self.conn = sqlite3.connect('src/aires_de_jeux.sq3', check_same_thread=False)
         self.conn.row_factory = sqlite3.Row
         cur = self.conn.cursor()
         # Si les tables existent déjà on passe cette étape
@@ -33,7 +33,7 @@ class MoteurDB:
             create_table(cur)
             self.conn.commit()
         # On récupère les clefs hashées du fichier JSON
-        with open('clefs.json', 'r') as hashed_keys_file:
+        with open('src/clefs.json', 'r') as hashed_keys_file:
             self.hashed_keys = json.load(hashed_keys_file)
 
         cur.execute("SELECT COUNT(id) FROM aire")
@@ -51,7 +51,7 @@ class MoteurDB:
         api_key = str(uuid4())
         hashed_api_keys = hashlib.md5(api_key.encode()).hexdigest()
         self.hashed_keys.append(hashed_api_keys)
-        with open('clefs.json', 'w') as hashed_keys_file:
+        with open('src/clefs.json', 'w') as hashed_keys_file:
             json.dump(self.hashed_keys, hashed_keys_file)
         return api_key
 
