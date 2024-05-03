@@ -170,7 +170,7 @@
         var markers = [];
         var userCircle = null;
 
-        axios.get("airejeux.json")
+        axios.get("/static/airejeux.json")
             .then(response => {
                 var data = response.data;
                 data.forEach(function(aire) {
@@ -178,7 +178,7 @@
                     var ageMin = aire.age_min;
                     var ageMax = aire.age_max;
                     var surface = aire.surface;
-                    var imageSrc = `images/${nom}.jpg`;
+                    var imageSrc = `static/images/${nom}.jpg`;
                     var geoShape = aire.geo_shape.geometry;
                     var marker = L.geoJSON(geoShape, {
                         onEachFeature: function(feature, layer) {
@@ -211,7 +211,8 @@
 
             var found = false;
 
-            axios.get("airejeux.json")
+            // axios.get("https://opendata.bordeaux-metropole.fr/api/explore/v2.1/catalog/datasets/bor_airejeux/records?select=age_min%2C%20age_max%2C%20geo_shape%2C%20nom_site%2C%20nb_jeux%2C%20surface%2C%20geo_point_2d%2C%20gid&limit=-1")
+            axios.get("/static/airejeux.json")
                 .then(response => {
                     var data = response.data;
                     data.forEach(function(aire) {
@@ -222,7 +223,7 @@
 
                         if (ageMinAire >= ageMin && ageMaxAire <= ageMax && surfaceAire <= surfaceMax && nom.includes(searchTerm)) {
                             found = true;
-                            var imageSrc = `images/${nom}.jpg`;
+                            var imageSrc = `static/images/${nom}.jpg`;
                             var geoShape = aire.geo_shape.geometry;
                             var marker = L.geoJSON(geoShape, {
                                 onEachFeature: function(feature, layer) {

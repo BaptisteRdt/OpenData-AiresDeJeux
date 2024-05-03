@@ -2,7 +2,9 @@
 Projet universitaire visant à créer une application utilisant des données publiques et libres d'accès
 
 Free-licence
-## Installation 
+
+## Python
+### Installation 
 
 ```bash 
 git clone https://github.com/BaptisteRdt/OpenData-AiresDeJeux.git
@@ -33,7 +35,7 @@ Une fois dans l’environnement virtuel installons les librairies nécessaires p
 ```bash
 pip install -r requirements.txt
 ```
-## Utilisation de l’application “AttractKids33“
+### Utilisation de l’application “AttractKids33“
 
 Une fois l'installation terminée, lorsque toutes les étapes précédentes ont été effectuées, il suffit de lancer l’application comme tel : 
 
@@ -41,7 +43,7 @@ Une fois l'installation terminée, lorsque toutes les étapes précédentes ont 
 python .\src\main.py
 ```
 
-## Utilisation de l'API 
+### Utilisation de l'API 
 
 Pour lancer l'API, taper la commande suivante dans le terminal : 
 
@@ -63,4 +65,14 @@ Vous envoie le schéma de la base de données avec le nom des colonnes correspon
 Vous envoie les données de l'API, le paramètre key est obligatoire, les paramètres de l'instruction optionnels sont en rouge,
 champs vous permet de n'obtenir que ces champs-ci dans la requête, et condition renvoi les 
 données respectant les conditions inscrites dans le paramètre
+
+## JavaScript
+
+### Installation 
+
+Dans le dossier **src_js** un fichier <span style="color: #26B260">index.html</span> et
+<span style="color: #26B260">airejeux.json</span>. Ces fichiers sont la base de l'application 
+web.
+
+Pour les mettres en lignes 
 

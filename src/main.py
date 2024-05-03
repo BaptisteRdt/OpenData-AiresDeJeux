@@ -54,7 +54,7 @@ class AireDeJeux:
         self.surface = surface
         self.nombre_de_jeux = nombre_de_jeux
         self.point_coords = point_coords
-        self.image_filename = glob.glob(f"src/images/{nom}.jpg")[0][11:] if glob.glob(f"src/images/{nom}.jpg") != [] \
+        self.image_filename = glob.glob(f"src/static/images/{nom}.jpg")[0][11:] if glob.glob(f"src/static/images/{nom}.jpg") != [] \
             else "no_photo.jpg"
         self.hidden_marker = True
         self.marker = None
@@ -66,7 +66,7 @@ class AireDeJeux:
                                             data=self,
                                             command=image_click,
                                             icon=ImageTk.PhotoImage(
-                                                Image.open(f"src/images/{self.image_filename}").resize((300, 300))))
+                                                Image.open(f"src/static/images/{self.image_filename}").resize((300, 300))))
         self.hidden_marker = False
 
     def hide_marker(self):
