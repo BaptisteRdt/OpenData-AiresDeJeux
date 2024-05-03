@@ -3,7 +3,6 @@ Projet universitaire visant à créer une application utilisant des données pub
 
 Free-licence
 
-## Python
 ### Installation 
 
 ```bash 
@@ -66,13 +65,6 @@ Vous envoie les données de l'API, le paramètre key est obligatoire, les param�
 champs vous permet de n'obtenir que ces champs-ci dans la requête, et condition renvoi les 
 données respectant les conditions inscrites dans le paramètre
 
-## JavaScript
+### Affichage application JS 
 
-### Installation 
-
-Dans le dossier **src_js** un fichier <span style="color: #26B260">index.html</span> et
-<span style="color: #26B260">airejeux.json</span>. Ces fichiers sont la base de l'application 
-web.
-
-Pour les mettres en lignes 
-
+Marquer l'URL : localhost:8000/application_js pour ouvrir l'application JavaScript et testez ses fonctionnalités. 

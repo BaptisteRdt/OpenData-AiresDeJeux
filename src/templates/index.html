@@ -178,7 +178,7 @@
                     var ageMin = aire.age_min;
                     var ageMax = aire.age_max;
                     var surface = aire.surface;
-                    var imageSrc = `static/images/${nom}.jpg`;
+                    var imageSrc = `/static/images/${nom}.jpg`;
                     var geoShape = aire.geo_shape.geometry;
                     var marker = L.geoJSON(geoShape, {
                         onEachFeature: function(feature, layer) {
@@ -223,7 +223,7 @@
 
                         if (ageMinAire >= ageMin && ageMaxAire <= ageMax && surfaceAire <= surfaceMax && nom.includes(searchTerm)) {
                             found = true;
-                            var imageSrc = `static/images/${nom}.jpg`;
+                            var imageSrc = `/static/images/${nom}.jpg`;
                             var geoShape = aire.geo_shape.geometry;
                             var marker = L.geoJSON(geoShape, {
                                 onEachFeature: function(feature, layer) {
